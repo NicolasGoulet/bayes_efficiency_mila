@@ -1,0 +1,21 @@
+{
+  "run_id": "bayes_pilot_example",
+  "prior_csv": "data/example/utterance_priors.csv.gz",
+  "likelihood_csv": "data/example/context_likelihoods.csv.gz",
+  "output_csv": "results/bayes_pilot/bayes_decomposition_scores.csv.gz",
+  "join_keys": ["context_id", "utterance_id", "source_model"],
+  "prior_log2_column": "log2_p_u",
+  "likelihood_log2_column": "log2_p_c_given_u",
+  "carry_columns": [
+    "context_id",
+    "utterance_id",
+    "source_model",
+    "age_months",
+    "age_bin",
+    "child_id",
+    "dataset",
+    "direct_mistral_sum_bits",
+    "word_count",
+    "morpheme_count"
+  ]
+}
