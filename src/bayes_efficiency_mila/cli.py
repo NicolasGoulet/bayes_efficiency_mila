@@ -8,6 +8,7 @@ import sys
 
 from .combine import run_combine
 from .manifest import BayesManifest
+from .ngram_bayes import NgramBayesManifest, run_ngram_bayes
 
 
 def cmd_validate_manifest(args: argparse.Namespace) -> int:
@@ -53,6 +54,30 @@ def cmd_estimate_context_likelihood(args: argparse.Namespace) -> int:
     return 2
 
 
+def cmd_validate_ngram_manifest(args: argparse.Namespace) -> int:
+    manifest = NgramBayesManifest.from_path(args.manifest)
+    if args.check_inputs:
+        manifest.validate_existing_inputs()
+    print(json.dumps({"status": "ok", "run_id": manifest.run_id}, indent=2))
+    return 0
+
+
+def cmd_score_ngram_bayes(args: argparse.Namespace) -> int:
+    manifest = NgramBayesManifest.from_path(args.manifest)
+    audit = run_ngram_bayes(manifest)
+    print(
+        json.dumps(
+            {
+                "status": "ok",
+                "audit_json": str(manifest.audit_json),
+                "row_count": audit["row_count"],
+            },
+            indent=2,
+        )
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="bayes-efficiency-mila")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -69,6 +94,15 @@ def build_parser() -> argparse.ArgumentParser:
     likelihood = subparsers.add_parser("estimate-context-likelihood")
     likelihood.add_argument("--manifest", required=True)
     likelihood.set_defaults(func=cmd_estimate_context_likelihood)
+
+    validate_ngram = subparsers.add_parser("validate-ngram-manifest")
+    validate_ngram.add_argument("--manifest", required=True)
+    validate_ngram.add_argument("--check-inputs", action="store_true")
+    validate_ngram.set_defaults(func=cmd_validate_ngram_manifest)
+
+    ngram_bayes = subparsers.add_parser("score-ngram-bayes")
+    ngram_bayes.add_argument("--manifest", required=True)
+    ngram_bayes.set_defaults(func=cmd_score_ngram_bayes)
 
     return parser
 

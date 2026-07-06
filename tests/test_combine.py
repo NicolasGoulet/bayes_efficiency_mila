@@ -9,6 +9,7 @@ from pathlib import Path
 
 from bayes_efficiency_mila.combine import run_combine
 from bayes_efficiency_mila.manifest import BayesManifest
+from bayes_efficiency_mila.ngram_bayes import NgramBayesManifest, run_ngram_bayes
 
 
 def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
@@ -84,6 +85,86 @@ class BayesCombineTests(unittest.TestCase):
             self.assertEqual(rows[0]["bayes_log2_score_unnormalized"], "-10.0")
             self.assertEqual(rows[0]["bayes_bits_unnormalized"], "10.0")
             self.assertEqual(rows[0]["age_bin"], "024-029")
+
+    def test_ngram_bayes_scores_candidate_rows(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            train = root / "train.csv"
+            candidates = root / "candidates.csv"
+            output = root / "ngram_bayes.csv.gz"
+            manifest_path = root / "manifest.json"
+
+            write_csv(
+                train,
+                [
+                    {
+                        "context_id": "c1",
+                        "utterance_id": "t1",
+                        "source_model": "real",
+                        "context_text": "do you want",
+                        "utterance_clean": "more milk",
+                        "target_utterance_clean": "",
+                    },
+                    {
+                        "context_id": "c2",
+                        "utterance_id": "t2",
+                        "source_model": "real",
+                        "context_text": "where did it go",
+                        "utterance_clean": "go there",
+                        "target_utterance_clean": "",
+                    },
+                ],
+            )
+            write_csv(
+                candidates,
+                [
+                    {
+                        "context_id": "c1",
+                        "utterance_id": "u1",
+                        "source_model": "real",
+                        "context_text": "do you want",
+                        "target_utterance_clean": "more milk",
+                    },
+                    {
+                        "context_id": "c1",
+                        "utterance_id": "u2",
+                        "source_model": "empty",
+                        "context_text": "do you want",
+                        "target_utterance_clean": "...",
+                    },
+                ],
+            )
+            manifest_path.write_text(
+                json.dumps(
+                    {
+                        "run_id": "ngram-unit",
+                        "train_csv": "train.csv",
+                        "candidate_csv": "candidates.csv",
+                        "output_csv": "ngram_bayes.csv.gz",
+                        "utterance_column": "utterance_clean",
+                        "candidate_utterance_column": "target_utterance_clean",
+                        "context_column": "context_text",
+                        "join_keys": ["context_id", "utterance_id", "source_model"],
+                        "carry_columns": ["context_text", "target_utterance_clean"],
+                        "order": 2,
+                        "alpha": 0.1,
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            audit = run_ngram_bayes(NgramBayesManifest.from_path(manifest_path))
+
+            self.assertEqual(audit["row_count"], 1)
+            self.assertEqual(audit["candidate_rows_skipped_empty"], 1)
+            with gzip.open(output, "rt", newline="", encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            self.assertLess(float(rows[0]["log2_p_u"]), 0.0)
+            self.assertLess(float(rows[0]["log2_p_c_given_u"]), 0.0)
+            self.assertAlmostEqual(
+                float(rows[0]["bayes_bits_unnormalized"]),
+                -float(rows[0]["bayes_log2_score_unnormalized"]),
+            )
 
 
 if __name__ == "__main__":

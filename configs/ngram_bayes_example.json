@@ -1,0 +1,27 @@
+{
+  "run_id": "ngram_bayes_example",
+  "train_csv": "data/example/train_pairs.csv",
+  "candidate_csv": "data/example/candidate_rows.csv",
+  "output_csv": "results/bayes_pilot/ngram_bayes_decomposition_scores.csv.gz",
+  "utterance_column": "utterance_clean",
+  "candidate_utterance_column": "target_utterance_clean",
+  "context_column": "context_text",
+  "join_keys": ["context_id", "utterance_id", "source_model"],
+  "carry_columns": [
+    "context_id",
+    "utterance_id",
+    "source_model",
+    "dataset",
+    "child_id",
+    "session_id",
+    "age_months",
+    "age_bin",
+    "context_text",
+    "target_utterance_clean",
+    "word_count"
+  ],
+  "order": 3,
+  "alpha": 0.1,
+  "condition_tail_words": 16,
+  "lowercase": true
+}
