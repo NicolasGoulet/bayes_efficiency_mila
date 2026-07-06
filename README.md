@@ -71,3 +71,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests
 Do not commit large prior tables, likelihood tables, candidate clouds, scored
 outputs, or model checkpoints. Transfer large inputs and outputs with `rsync`
 or cluster storage.
+
+On Mila, keep the permanent Git checkout in `$HOME` beside the other modular
+repos. Put production manifests, temporary files, candidate clouds, and run
+outputs under `$SCRATCH`, then remove scratch job directories after outputs have
+been rsynced back or are no longer needed.

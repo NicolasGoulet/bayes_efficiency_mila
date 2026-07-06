@@ -20,6 +20,10 @@ p(u | c) = p(c | u) * p(u) / p(c)
 - [x] Keep Git limited to code, tests, docs, Slurm scripts, tiny synthetic
       fixtures, and manifest templates. Move real prior/likelihood tables,
       candidate clouds, and scored outputs with `rsync`.
+- [x] On Mila, keep the permanent Git checkout in `$HOME` beside the other
+      modular repos; write job outputs, temporary data, candidate clouds, and
+      rsynced full datasets under `$SCRATCH`, then remove scratch job
+      directories after retrieval.
 - [x] Provide Slurm scripts that `cd` to repo root and set `PYTHONPATH=src`.
 - [ ] Add production manifests pointing to compact exported prior/likelihood
       inputs from Mila or the main brain repo.
