@@ -17,6 +17,9 @@ p(u | c) = p(c | u) * p(u) / p(c)
 - [x] Label Bayes pilot scores as unnormalized unless `p(c)` is estimated.
 - [x] Preserve `context_id`, `utterance_id`, `source_model`, age, child,
       dataset, context, and effort provenance wherever available.
+- [x] Keep Git limited to code, tests, docs, Slurm scripts, tiny synthetic
+      fixtures, and manifest templates. Move real prior/likelihood tables,
+      candidate clouds, and scored outputs with `rsync`.
 - [x] Provide Slurm scripts that `cd` to repo root and set `PYTHONPATH=src`.
 - [ ] Add production manifests pointing to compact exported prior/likelihood
       inputs from Mila or the main brain repo.
@@ -59,6 +62,9 @@ p(u | c) = p(c | u) * p(u) / p(c)
       developmental effects.
 - [ ] Treat the Bayes decomposition as an added analysis family, not as a
       replacement for existing Route 1/Route 2 results.
+- [ ] Add PBM cleaned-data integration manifests using existing
+      `compute_surprisal_mila/data/{Brown,Manchester,Providence}/*/chi.csv`
+      as the first real-data test layer before full strict-naturalistic data.
 
 ## Verification Commands
 
