@@ -60,6 +60,18 @@ Build a CPU pilot table:
 python3 -m bayes_efficiency_mila combine --manifest configs/bayes_pilot_example.json
 ```
 
+Run the PBM Bayes n-gram production pilot on Mila after the strict-naturalistic
+bundle has been extracted under scratch. By default, training uses all 79
+children in the bundle while candidates are PBM real + n-gram baseline
+utterances.
+
+```bash
+cd "$HOME/communicative_efficiency_repos/bayes_efficiency_mila"
+sbatch --output="$SCRATCH/pbm-bayes-%j.out" \
+  slurm/pbm_ngram_bayes.sbatch \
+  "$SCRATCH/communicative_efficiency_data/big_cleaned_dataset/default_naturalistic_merged_006_023"
+```
+
 Run tests:
 
 ```bash

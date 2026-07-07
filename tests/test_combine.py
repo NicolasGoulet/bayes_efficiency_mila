@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from bayes_efficiency_mila.big_cleaned import prepare_pbm_ngram_bayes_manifest
 from bayes_efficiency_mila.combine import run_combine
 from bayes_efficiency_mila.manifest import BayesManifest
 from bayes_efficiency_mila.ngram_bayes import NgramBayesManifest, run_ngram_bayes
@@ -21,6 +22,59 @@ def write_csv(path: Path, rows: list[dict[str, str]]) -> None:
 
 
 class BayesCombineTests(unittest.TestCase):
+    def test_prepare_pbm_ngram_bayes_manifest_from_bundle(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            root = Path(tmpdir)
+            bundle = root / "bundle"
+            child_dir = bundle / "preprocessed_data" / "Brown" / "Adam"
+            child_dir.mkdir(parents=True)
+            write_csv(
+                bundle / "manifest.csv",
+                [
+                    {
+                        "dataset": "Brown",
+                        "child_id": "Adam",
+                        "child_scoring_ready": "1",
+                        "child_scoring_csv": "preprocessed_data/Brown/Adam/chi.surprisal_scoring.csv",
+                    }
+                ],
+            )
+            write_csv(
+                child_dir / "chi.surprisal_scoring.csv",
+                [
+                    {
+                        "dataset": "Brown",
+                        "child_id": "Adam",
+                        "source_group": "Brown",
+                        "session_id": "1",
+                        "age_months": "27.1",
+                        "file": "Adam/a.cha",
+                        "line_no": "10",
+                        "utt_id": "1",
+                        "context_k3": "do you want milk?",
+                        "chi_utterance_clean": "more milk",
+                        "random_model_utterance_bin6": "go home",
+                        "unigram_model_utterance_bin6": "want milk",
+                        "bigram_model_utterance_bin6": "more cookie",
+                        "trigram_model_utterance_bin6": "more milk",
+                    }
+                ],
+            )
+
+            audit = prepare_pbm_ngram_bayes_manifest(
+                bundle_root=bundle,
+                output_root=root / "run",
+                run_id="unit-pbm",
+                candidate_datasets={"Brown"},
+                train_datasets={"Brown"},
+            )
+
+            self.assertEqual(audit["train_row_count"], 1)
+            self.assertEqual(audit["candidate_row_count"], 5)
+            manifest = NgramBayesManifest.from_path(audit["manifest_json"])
+            self.assertEqual(manifest.run_id, "unit-pbm")
+            self.assertEqual(manifest.join_keys, ("row_uid", "source_model"))
+
     def test_combines_prior_and_likelihood_scores(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
             root = Path(tmpdir)

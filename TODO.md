@@ -25,7 +25,7 @@ p(u | c) = p(c | u) * p(u) / p(c)
       rsynced full datasets under `$SCRATCH`, then remove scratch job
       directories after retrieval.
 - [x] Provide Slurm scripts that `cd` to repo root and set `PYTHONPATH=src`.
-- [ ] Add production manifests pointing to compact exported prior/likelihood
+- [x] Add production manifests pointing to compact exported prior/likelihood
       inputs from Mila or the main brain repo.
 - [ ] Add a manifest audit command that checks join-key uniqueness, required
       columns, score sign conventions, and duplicate candidate rows.
@@ -66,7 +66,7 @@ p(u | c) = p(c | u) * p(u) / p(c)
       developmental effects.
 - [ ] Treat the Bayes decomposition as an added analysis family, not as a
       replacement for existing Route 1/Route 2 results.
-- [ ] Add PBM cleaned-data integration manifests using existing
+- [x] Add PBM cleaned-data integration manifests using existing
       `compute_surprisal_mila/data/{Brown,Manchester,Providence}/*/chi.csv`
       as the first real-data test layer before full strict-naturalistic data.
 
